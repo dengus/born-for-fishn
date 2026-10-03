@@ -43,8 +43,8 @@ try {
   }
   .pill { min-height: 48px; padding: 8px 12px; font-size: 1rem; }
   button.pill { cursor: pointer; }
-  #locs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 4px 10px; }
-  .locbtn { min-height: 56px; padding: 6px 8px; font-size: 0.95rem; line-height: 1.15; white-space: normal; background: #e8f7ff; cursor: pointer; }
+  #locs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 4px 10px; max-height: 28vh; overflow: auto; }
+  .locbtn { min-height: 48px; padding: 4px 6px; font-size: 0.82rem; line-height: 1.1; white-space: normal; background: #e8f7ff; cursor: pointer; }
   .locbtn small { font-weight: 800; }
   .locbtn.on { background: #ffd166; }
   .locbtn.locked { background: #d7e0e6; color: #355066; }
@@ -143,7 +143,7 @@ try {
     <div class="sheet pop">
       <h2>Born for fish'n</h2>
       <ol>
-        <li>Press <b>Throw</b>, or drag on the water, to cast.</li>
+        <li>Press <b>Throw</b>, or drag on the water, to cast. The dotted circle shows how far you can throw. Buy a fishing pole to cast further.</li>
         <li>Hold <b>Wind</b>, or drag back towards you, to bring the hook in.</li>
         <li>You catch a fish only when the hook passes close on the way in. Tapping a fish does not catch it.</li>
         <li>Keep fish in your basket, then sell them at the <b>Shop</b>.</li>

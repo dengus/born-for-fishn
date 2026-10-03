@@ -8,7 +8,7 @@
     cod: { name: "Murray cod", points: 100, price: 45, body: "#6b8f71", belly: "#d5e2c8", mottled: true }
   };
   var UPGRADES = [
-    { id: "pole", name: "Fishing pole", price: 18, effect: "A sturdy teal pole on the bank. Casts already reach every bit of water." },
+    { id: "pole", name: "Fishing pole", price: 18, effect: "Throw the line much further. The dotted line on the pond grows." },
     { id: "line", name: "Fishing line", price: 26, effect: "Wind in faster. A snag will not snap this line. A snapped line only loses that cast." },
     { id: "bait", name: "Bait", price: 8, effect: "Fish bite more often when the hook passes close. A green ring shows the bigger bite." },
     { id: "berley", name: "Berley", price: 12, effect: "Sprinkle berley. Fish swim over to the cloud." },
@@ -22,43 +22,173 @@
       id: "home", name: "Home Pond", sky: "#9ad9ff", waterTop: "#8fd8f2", waterBottom: "#1a8cb5",
       snags: [],
       fish: [
-        { sp: "spotty", x: 0.50, y: 0.80, ax: 0.06, ay: 0.03, spd: 1.15, ph: 0.2 },
-        { sp: "spotty", x: 0.20, y: 0.62, ax: 0.07, ay: 0.04, spd: 0.95, ph: 1.1 },
-        { sp: "spotty", x: 0.82, y: 0.70, ax: 0.06, ay: 0.035, spd: 1.25, ph: 2.2 },
-        { sp: "yellowbelly", x: 0.30, y: 0.46, ax: 0.08, ay: 0.04, spd: 0.8, ph: 0.4 },
-        { sp: "yellowbelly", x: 0.72, y: 0.50, ax: 0.08, ay: 0.04, spd: 1.0, ph: 1.8 }
+        { sp: "spotty", x: 0.48, y: 0.72, ax: 0.10, ay: 0.06, spd: 1.05, ph: 0.2 },
+        { sp: "spotty", x: 0.22, y: 0.55, ax: 0.09, ay: 0.05, spd: 0.95, ph: 1.1 },
+        { sp: "spotty", x: 0.78, y: 0.60, ax: 0.08, ay: 0.05, spd: 1.15, ph: 2.2 },
+        { sp: "spotty", x: 0.58, y: 0.42, ax: 0.10, ay: 0.07, spd: 1.0, ph: 0.8 }
+      ]
+    },
+    {
+      id: "dam", name: "Farm Dam", sky: "#b7e4ff", waterTop: "#86d0e8", waterBottom: "#1b7fa0",
+      snags: [
+        { kind: "weed", x: 0.78, y: 0.48, pull: 0.28 }
+      ],
+      fish: [
+        { sp: "spotty", x: 0.30, y: 0.70, ax: 0.09, ay: 0.05, spd: 1.1, ph: 0.3 },
+        { sp: "spotty", x: 0.62, y: 0.62, ax: 0.08, ay: 0.05, spd: 1.0, ph: 1.4 },
+        { sp: "spotty", x: 0.18, y: 0.44, ax: 0.10, ay: 0.06, spd: 0.9, ph: 2.0 },
+        { sp: "yellowbelly", x: 0.70, y: 0.38, ax: 0.09, ay: 0.06, spd: 0.85, ph: 0.6 }
+      ]
+    },
+    {
+      id: "willow", name: "Willow Bend", sky: "#c5ebff", waterTop: "#7fcfbe", waterBottom: "#1d7a70",
+      snags: [
+        { kind: "log", x: 0.20, y: 0.52, pull: 0.34 }
+      ],
+      fish: [
+        { sp: "spotty", x: 0.42, y: 0.74, ax: 0.09, ay: 0.05, spd: 1.05, ph: 0.4 },
+        { sp: "spotty", x: 0.80, y: 0.58, ax: 0.08, ay: 0.05, spd: 1.15, ph: 1.6 },
+        { sp: "yellowbelly", x: 0.34, y: 0.48, ax: 0.10, ay: 0.06, spd: 0.88, ph: 0.9 },
+        { sp: "yellowbelly", x: 0.66, y: 0.36, ax: 0.09, ay: 0.07, spd: 0.92, ph: 2.1 }
       ]
     },
     {
       id: "creek", name: "Snag Creek", sky: "#c6edd6", waterTop: "#8ed6c4", waterBottom: "#1d7a78",
       snags: [
-        { kind: "log", x: 0.16, y: 0.62 },
-        { kind: "weed", x: 0.84, y: 0.52 },
-        { kind: "boot", x: 0.18, y: 0.36 }
+        { kind: "log", x: 0.18, y: 0.58, pull: 0.42 },
+        { kind: "weed", x: 0.82, y: 0.44, pull: 0.38 }
       ],
       fish: [
-        { sp: "yellowbelly", x: 0.40, y: 0.60, ax: 0.10, ay: 0.06, spd: 0.9, ph: 0.5 },
-        { sp: "yellowbelly", x: 0.62, y: 0.52, ax: 0.09, ay: 0.07, spd: 1.05, ph: 1.5 },
-        { sp: "barra", x: 0.46, y: 0.42, ax: 0.08, ay: 0.10, spd: 0.72, ph: 2.1 },
-        { sp: "barra", x: 0.70, y: 0.48, ax: 0.10, ay: 0.08, spd: 0.88, ph: 0.9 }
+        { sp: "spotty", x: 0.50, y: 0.76, ax: 0.08, ay: 0.04, spd: 1.1, ph: 0.2 },
+        { sp: "yellowbelly", x: 0.36, y: 0.56, ax: 0.10, ay: 0.06, spd: 0.9, ph: 0.5 },
+        { sp: "yellowbelly", x: 0.68, y: 0.50, ax: 0.09, ay: 0.07, spd: 1.0, ph: 1.5 },
+        { sp: "yellowbelly", x: 0.48, y: 0.34, ax: 0.10, ay: 0.08, spd: 0.86, ph: 2.3 }
+      ]
+    },
+    {
+      id: "reeds", name: "Reed Flat", sky: "#d4f0c8", waterTop: "#7dceb8", waterBottom: "#1a6f6a",
+      snags: [
+        { kind: "weed", x: 0.16, y: 0.40, pull: 0.46 },
+        { kind: "weed", x: 0.84, y: 0.56, pull: 0.44 }
+      ],
+      fish: [
+        { sp: "yellowbelly", x: 0.28, y: 0.68, ax: 0.10, ay: 0.06, spd: 0.92, ph: 0.3 },
+        { sp: "yellowbelly", x: 0.58, y: 0.58, ax: 0.09, ay: 0.07, spd: 0.98, ph: 1.2 },
+        { sp: "yellowbelly", x: 0.76, y: 0.42, ax: 0.10, ay: 0.08, spd: 0.88, ph: 2.0 },
+        { sp: "barra", x: 0.42, y: 0.32, ax: 0.08, ay: 0.09, spd: 0.72, ph: 0.8 }
+      ]
+    },
+    {
+      id: "billy", name: "Quiet Billabong", sky: "#b8e0d4", waterTop: "#74c4b8", waterBottom: "#186860",
+      snags: [
+        { kind: "log", x: 0.22, y: 0.62, pull: 0.52 },
+        { kind: "boot", x: 0.78, y: 0.36, pull: 0.48 },
+        { kind: "weed", x: 0.52, y: 0.28, pull: 0.46 }
+      ],
+      fish: [
+        { sp: "yellowbelly", x: 0.34, y: 0.72, ax: 0.09, ay: 0.05, spd: 0.9, ph: 0.4 },
+        { sp: "yellowbelly", x: 0.70, y: 0.60, ax: 0.10, ay: 0.06, spd: 0.95, ph: 1.3 },
+        { sp: "barra", x: 0.40, y: 0.44, ax: 0.09, ay: 0.10, spd: 0.74, ph: 2.0 },
+        { sp: "barra", x: 0.66, y: 0.34, ax: 0.10, ay: 0.09, spd: 0.8, ph: 0.7 }
+      ]
+    },
+    {
+      id: "rocky", name: "Rocky Reach", sky: "#a8d0f0", waterTop: "#6eb4d8", waterBottom: "#1f5f9a",
+      snags: [
+        { kind: "log", x: 0.14, y: 0.50, pull: 0.58 },
+        { kind: "weed", x: 0.86, y: 0.42, pull: 0.55 },
+        { kind: "boot", x: 0.48, y: 0.30, pull: 0.56 }
+      ],
+      fish: [
+        { sp: "yellowbelly", x: 0.26, y: 0.70, ax: 0.09, ay: 0.06, spd: 0.95, ph: 0.5 },
+        { sp: "barra", x: 0.52, y: 0.56, ax: 0.10, ay: 0.09, spd: 0.76, ph: 1.1 },
+        { sp: "barra", x: 0.74, y: 0.46, ax: 0.09, ay: 0.10, spd: 0.82, ph: 1.9 },
+        { sp: "barra", x: 0.38, y: 0.28, ax: 0.08, ay: 0.11, spd: 0.7, ph: 0.3 }
       ]
     },
     {
       id: "deep", name: "Deeper Water", sky: "#b9d6ff", waterTop: "#79b7e6", waterBottom: "#2457a6",
       snags: [
-        { kind: "weed", x: 0.14, y: 0.46 },
-        { kind: "log", x: 0.86, y: 0.40 },
-        { kind: "boot", x: 0.80, y: 0.66 },
-        { kind: "weed", x: 0.18, y: 0.26 }
+        { kind: "weed", x: 0.14, y: 0.46, pull: 0.62 },
+        { kind: "log", x: 0.86, y: 0.40, pull: 0.64 },
+        { kind: "boot", x: 0.72, y: 0.64, pull: 0.6 },
+        { kind: "weed", x: 0.28, y: 0.24, pull: 0.58 }
       ],
       fish: [
-        { sp: "barra", x: 0.34, y: 0.50, ax: 0.08, ay: 0.11, spd: 0.7, ph: 0.3 },
-        { sp: "barra", x: 0.58, y: 0.44, ax: 0.10, ay: 0.10, spd: 0.86, ph: 1.2 },
-        { sp: "cod", x: 0.48, y: 0.32, ax: 0.07, ay: 0.13, spd: 0.55, ph: 0.7 },
-        { sp: "cod", x: 0.70, y: 0.38, ax: 0.09, ay: 0.12, spd: 0.62, ph: 2.3 }
+        { sp: "barra", x: 0.30, y: 0.66, ax: 0.09, ay: 0.10, spd: 0.74, ph: 0.4 },
+        { sp: "barra", x: 0.62, y: 0.52, ax: 0.10, ay: 0.10, spd: 0.8, ph: 1.4 },
+        { sp: "barra", x: 0.44, y: 0.36, ax: 0.08, ay: 0.11, spd: 0.7, ph: 2.2 },
+        { sp: "cod", x: 0.70, y: 0.28, ax: 0.07, ay: 0.12, spd: 0.55, ph: 0.9 }
+      ]
+    },
+    {
+      id: "muddy", name: "Muddy Bend", sky: "#c8d4a8", waterTop: "#6aa89a", waterBottom: "#1a4f58",
+      snags: [
+        { kind: "log", x: 0.18, y: 0.58, pull: 0.7 },
+        { kind: "boot", x: 0.82, y: 0.48, pull: 0.68 },
+        { kind: "weed", x: 0.40, y: 0.32, pull: 0.66 },
+        { kind: "log", x: 0.64, y: 0.22, pull: 0.72 }
+      ],
+      fish: [
+        { sp: "barra", x: 0.34, y: 0.70, ax: 0.09, ay: 0.09, spd: 0.78, ph: 0.2 },
+        { sp: "barra", x: 0.68, y: 0.58, ax: 0.10, ay: 0.10, spd: 0.84, ph: 1.0 },
+        { sp: "cod", x: 0.46, y: 0.40, ax: 0.08, ay: 0.12, spd: 0.58, ph: 1.7 },
+        { sp: "cod", x: 0.76, y: 0.30, ax: 0.07, ay: 0.11, spd: 0.6, ph: 2.4 }
+      ]
+    },
+    {
+      id: "logpile", name: "Log Pile", sky: "#9ec4e0", waterTop: "#5a9ec8", waterBottom: "#1c4578",
+      snags: [
+        { kind: "log", x: 0.16, y: 0.62, pull: 0.78 },
+        { kind: "log", x: 0.84, y: 0.54, pull: 0.8 },
+        { kind: "weed", x: 0.34, y: 0.36, pull: 0.74 },
+        { kind: "boot", x: 0.62, y: 0.24, pull: 0.76 }
+      ],
+      fish: [
+        { sp: "barra", x: 0.28, y: 0.74, ax: 0.09, ay: 0.08, spd: 0.8, ph: 0.5 },
+        { sp: "cod", x: 0.52, y: 0.56, ax: 0.08, ay: 0.12, spd: 0.56, ph: 1.2 },
+        { sp: "cod", x: 0.74, y: 0.42, ax: 0.09, ay: 0.11, spd: 0.62, ph: 2.0 },
+        { sp: "cod", x: 0.40, y: 0.26, ax: 0.07, ay: 0.13, spd: 0.52, ph: 0.8 }
+      ]
+    },
+    {
+      id: "storm", name: "Storm Bend", sky: "#8eb0d0", waterTop: "#4e8ab8", waterBottom: "#163868",
+      snags: [
+        { kind: "log", x: 0.14, y: 0.56, pull: 0.88 },
+        { kind: "weed", x: 0.86, y: 0.48, pull: 0.86 },
+        { kind: "boot", x: 0.30, y: 0.34, pull: 0.9 },
+        { kind: "log", x: 0.58, y: 0.22, pull: 0.92 },
+        { kind: "weed", x: 0.72, y: 0.68, pull: 0.84 }
+      ],
+      fish: [
+        { sp: "barra", x: 0.24, y: 0.72, ax: 0.10, ay: 0.09, spd: 0.82, ph: 0.3 },
+        { sp: "barra", x: 0.60, y: 0.60, ax: 0.09, ay: 0.10, spd: 0.78, ph: 1.1 },
+        { sp: "cod", x: 0.42, y: 0.44, ax: 0.08, ay: 0.12, spd: 0.58, ph: 1.8 },
+        { sp: "cod", x: 0.78, y: 0.32, ax: 0.09, ay: 0.12, spd: 0.64, ph: 2.5 },
+        { sp: "cod", x: 0.50, y: 0.20, ax: 0.07, ay: 0.11, spd: 0.5, ph: 0.6 }
+      ]
+    },
+    {
+      id: "champion", name: "Champion Water", sky: "#7aa0c8", waterTop: "#3f78a8", waterBottom: "#0f2f58",
+      snags: [
+        { kind: "log", x: 0.12, y: 0.60, pull: 1.0 },
+        { kind: "weed", x: 0.88, y: 0.52, pull: 0.96 },
+        { kind: "boot", x: 0.26, y: 0.38, pull: 1.0 },
+        { kind: "log", x: 0.54, y: 0.26, pull: 1.0 },
+        { kind: "weed", x: 0.74, y: 0.70, pull: 0.94 },
+        { kind: "boot", x: 0.44, y: 0.48, pull: 0.98 }
+      ],
+      fish: [
+        { sp: "yellowbelly", x: 0.20, y: 0.78, ax: 0.09, ay: 0.05, spd: 1.0, ph: 0.2 },
+        { sp: "barra", x: 0.48, y: 0.66, ax: 0.10, ay: 0.09, spd: 0.8, ph: 0.9 },
+        { sp: "barra", x: 0.76, y: 0.54, ax: 0.09, ay: 0.10, spd: 0.86, ph: 1.6 },
+        { sp: "cod", x: 0.34, y: 0.40, ax: 0.08, ay: 0.12, spd: 0.56, ph: 2.1 },
+        { sp: "cod", x: 0.64, y: 0.30, ax: 0.09, ay: 0.12, spd: 0.6, ph: 0.5 },
+        { sp: "cod", x: 0.50, y: 0.18, ax: 0.07, ay: 0.11, spd: 0.48, ph: 1.4 }
       ]
     }
   ];
+
   var GEAR_IDS = ["pole", "line", "bait", "berley", "net", "hat", "sunscreen", "clothes"];
 
   function freshState() {
@@ -104,13 +234,14 @@
     return {
       id: loc.id, name: loc.name, sky: loc.sky, waterTop: loc.waterTop, waterBottom: loc.waterBottom,
       snags: loc.snags.map(function (s, i) {
-        return { id: loc.id + "-snag-" + i, kind: s.kind, x: s.x, y: s.y };
+        return { id: loc.id + "-snag-" + i, kind: s.kind, x: s.x, y: s.y, pull: Number.isFinite(s.pull) ? s.pull : 0.45 };
       }),
       fish: loc.fish.map(function (f, i) {
         return {
           id: loc.id + "-" + i, locId: loc.id, index: i, sp: f.sp,
-          ox: f.x, oy: f.y, x: f.x, y: f.y, ax: f.ax, ay: f.ay, spd: f.spd, ph: f.ph,
-          caught: !!state.caught[loc.id][i], flee: 0, fleeX: 0, fleeY: 0, facing: 1, px: null
+          ox: f.x, oy: f.y, x: f.x, y: f.y, tx: f.x, ty: f.y, ax: f.ax, ay: f.ay, spd: f.spd, ph: f.ph,
+          caught: !!state.caught[loc.id][i], flee: 0, fleeX: 0, fleeY: 0, facing: 1, px: null,
+          linger: 0, retarget: 0.4 + i * 0.15
         };
       })
     };
@@ -155,12 +286,13 @@
     Object.keys(state.creel).forEach(function (k) { n += state.creel[k] || 0; });
     return n;
   }
-  function waterPad() { return Math.max(12, 16 * Math.max(S, 0.85)); }
+  function maxCast() { return state.gear.pole ? water.h * 1.08 : water.h * 0.62; }
   function windSpeed() { return state.gear.line ? 520 : 270; }
   function biteRadius() { return (state.gear.bait ? 58 : 36) * Math.max(S, 0.85); }
   function biteChance() { return state.gear.bait ? 0.9 : 0.6; }
-  function snagRadius() {
-    var base = 26 * Math.max(S, 0.82);
+  function snagRadius(sn) {
+    var pull = sn && Number.isFinite(sn.pull) ? sn.pull : 0.45;
+    var base = (24 + pull * 14) * Math.max(S, 0.82);
     return state.gear.sunscreen ? base * 0.7 : base;
   }
   function saleEach(sp) {
@@ -274,7 +406,7 @@
     var loc = currentLoc();
     var left = liveCount(loc);
     var bits = [loc.name, left === 0 ? "Cleared" : (left + " fish left")];
-    if (state.gear.pole) bits.push("Teal pole");
+    bits.push(state.gear.pole ? "Long cast" : "Short cast");
     bits.push(state.gear.line ? "Strong line" : "Soft line");
     if (state.gear.bait) bits.push("Good bait");
     if (state.gear.sunscreen) bits.push("Sunscreen on");
@@ -340,14 +472,19 @@
     renderLocs();
   }
   function clampCast(p) {
-    var pad = waterPad();
-    return {
-      x: clamp(p.x, water.x + pad, water.x + water.w - pad),
-      y: clamp(p.y, water.y + pad, water.y + water.h - pad)
-    };
+    var dx = p.x - angler.x, dy = p.y - angler.y;
+    var L = Math.hypot(dx, dy) || 1;
+    var max = maxCast();
+    if (L > max) { dx *= max / L; dy *= max / L; }
+    var x = clamp(angler.x + dx, 18, W - 18);
+    var y = clamp(angler.y + dy, water.y + 18, water.y + water.h - 12);
+    dx = x - angler.x; dy = y - angler.y;
+    L = Math.hypot(dx, dy) || 1;
+    if (L > max) { x = angler.x + dx / L * max; y = angler.y + dy / L * max; }
+    return { x: x, y: y };
   }
   function defaultTarget() {
-    return clampCast({ x: angler.x, y: water.y + water.h * 0.22 });
+    return clampCast({ x: angler.x, y: angler.y - maxCast() * 0.72 });
   }
   function startCast(target) {
     castFrom = rodTip();
@@ -398,7 +535,7 @@
     for (var i = 0; i < loc.snags.length; i++) {
       var sn = loc.snags[i];
       if (snagChecked.has(sn.id)) continue;
-      if (dist(toPx(sn.x, sn.y), hook) <= snagRadius()) {
+      if (dist(toPx(sn.x, sn.y), hook) <= snagRadius(sn)) {
         snagChecked.add(sn.id);
         if (state.gear.sunscreen && rng() < 0.5) {
           toast("Slipped past " + snagPhrase(sn.kind) + ". Sunscreen luck!");
@@ -424,24 +561,28 @@
   }
   function updateSnag(dt, wantReel) {
     var tug = 0;
+    var pull = currentSnag && Number.isFinite(currentSnag.pull) ? currentSnag.pull : 0.45;
     if (wantReel) tug += dt;
     if (dragWind > 0) { tug += dragWind / windSpeed(); dragWind = 0; }
     if (tug <= 0) return;
     snagTug += tug;
+    var freeNeed = 0.4 + pull * 0.35;
     if (state.gear.line) {
-      if (snagTug >= 0.45) {
+      if (snagTug >= freeNeed * 0.85) {
         phase = "winding"; snagTug = 0;
         toast("The strong line held. You pulled free.");
         sfx("slip");
       }
       return;
     }
-    if (snagTug >= 0.55) {
+    if (snagTug >= freeNeed) {
       snagTug = 0;
-      if (rng() < 0.34) snapLine();
+      var snapChance = 0.22 + pull * 0.28;
+      if (rng() < snapChance) snapLine();
       else {
         snagPulls += 1;
-        if (snagPulls >= 2) { phase = "winding"; toast("You pulled free."); sfx("slip"); }
+        var needPulls = pull >= 0.75 ? 3 : 2;
+        if (snagPulls >= needPulls) { phase = "winding"; toast("You pulled free."); sfx("slip"); }
         else toast("Still snagged. Wind again, gently.");
       }
     }
@@ -475,6 +616,32 @@
       }
     }
   }
+  function pickSnagTarget(loc) {
+    if (!loc.snags.length) return null;
+    var total = 0;
+    loc.snags.forEach(function (s) { total += s.pull || 0.4; });
+    var r = rng() * total, acc = 0;
+    for (var i = 0; i < loc.snags.length; i++) {
+      acc += loc.snags[i].pull || 0.4;
+      if (r <= acc) return loc.snags[i];
+    }
+    return loc.snags[loc.snags.length - 1];
+  }
+  function retargetFish(f, loc) {
+    var sn = pickSnagTarget(loc);
+    var pullBias = sn ? clamp((sn.pull || 0.4) * 0.85, 0.2, 0.92) : 0;
+    if (sn && rng() < pullBias) {
+      var jitter = 0.06 + (1 - (sn.pull || 0.4)) * 0.08;
+      f.tx = clamp(sn.x + (rng() - 0.5) * jitter * 2, 0.08, 0.92);
+      f.ty = clamp(sn.y + (rng() - 0.5) * jitter * 2, 0.08, 0.9);
+      f.linger = 1.2 + (sn.pull || 0.4) * 2.4;
+    } else {
+      f.tx = clamp(0.1 + rng() * 0.8, 0.08, 0.92);
+      f.ty = clamp(0.12 + rng() * 0.72, 0.08, 0.9);
+      f.linger = 0.35 + rng() * 0.8;
+    }
+    f.retarget = f.linger;
+  }
   function updateFish(dt) {
     var cloud = berleyT > 0 && berley;
     runtime.forEach(function (loc) {
@@ -484,12 +651,29 @@
         if (cloud && here) {
           f.x += (berley.x - f.x) * Math.min(1, dt * 0.55);
           f.y += (berley.y - f.y) * Math.min(1, dt * 0.55);
+          f.tx = berley.x; f.ty = berley.y;
         } else {
-          f.x += (f.ox - f.x) * Math.min(1, dt * 0.22);
-          f.y += (f.oy - f.y) * Math.min(1, dt * 0.22);
+          f.retarget -= dt;
+          if (f.retarget <= 0) retargetFish(f, loc);
+          var speed = 0.28 + f.spd * 0.18;
+          if (f.linger > 0.6) speed *= 0.45;
+          f.x += (f.tx - f.x) * Math.min(1, dt * speed);
+          f.y += (f.ty - f.y) * Math.min(1, dt * speed);
+          if (loc.snags.length && here) {
+            var nearest = null, best = 1e9;
+            loc.snags.forEach(function (s) {
+              var d = Math.hypot(s.x - f.x, s.y - f.y);
+              if (d < best) { best = d; nearest = s; }
+            });
+            if (nearest && best < 0.22) {
+              var attract = (nearest.pull || 0.4) * 0.12;
+              f.x += (nearest.x - f.x) * Math.min(1, dt * attract);
+              f.y += (nearest.y - f.y) * Math.min(1, dt * attract);
+            }
+          }
         }
-        f.x = clamp(f.x, 0.1, 0.9);
-        f.y = clamp(f.y, 0.12, 0.86);
+        f.x = clamp(f.x, 0.06, 0.94);
+        f.y = clamp(f.y, 0.08, 0.9);
         if (f.flee > 0) f.flee = Math.max(0, f.flee - dt * 0.12);
       });
     });
@@ -714,6 +898,10 @@
       }
       ctx.stroke();
     }
+    ctx.setLineDash([7, 8]); ctx.lineWidth = 3;
+    ctx.strokeStyle = state.gear.pole ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.45)";
+    ctx.beginPath(); ctx.arc(angler.x, angler.y, maxCast(), 0, Math.PI * 2); ctx.stroke();
+    ctx.setLineDash([]);
     loc.snags.forEach(drawSnag);
     if (berleyT > 0 && berley) {
       var bp = toPx(berley.x, berley.y);
@@ -1009,24 +1197,28 @@
     function check(cond, msg) { if (!cond) problems.push(msg); }
     W = 400; H = 800; prevW = 0; prevH = 0; layout();
     check(document.title.indexOf("Born for fish'n") === 0, "title");
+    check(LEVELS.length === 12, "twelve levels");
     state.money = 0;
     GEAR_IDS.forEach(function (id) { state.gear[id] = false; });
     state.creel = { spotty: 0, yellowbelly: 0, barra: 0, cod: 0 };
     state.best = null;
     runtime.forEach(function (loc) {
       loc.fish.forEach(function (f) {
-        f.caught = false; f.x = f.ox; f.y = f.oy; f.flee = 0; f.ax = f.ax; f.ay = f.ay;
+        f.caught = false; f.x = f.ox; f.y = f.oy; f.tx = f.ox; f.ty = f.oy; f.flee = 0;
+        f.retarget = 0.2; f.linger = 0;
         state.caught[loc.id][f.index] = false;
       });
     });
-    currentId = "home";
-    check(isUnlocked(locById("home")) && !isUnlocked(locById("creek")) && !isUnlocked(locById("deep")), "start locks");
-    locById("home").fish.forEach(catchFish);
-    check(cleared(locById("home")) && isUnlocked(locById("creek")) && !isUnlocked(locById("deep")), "home clear opens creek only");
-    check(locById("home").fish.every(function (f) { return f.caught; }), "caught stay caught");
-    locById("creek").fish.forEach(catchFish);
-    check(isUnlocked(locById("deep")), "creek clear opens deep");
-    check(cleared(locById("home")), "home stays clear");
+    currentId = LEVELS[0].id;
+    check(isUnlocked(locById(LEVELS[0].id)) && !isUnlocked(locById(LEVELS[1].id)), "start locks");
+    locById(LEVELS[0].id).fish.forEach(catchFish);
+    check(cleared(locById(LEVELS[0].id)) && isUnlocked(locById(LEVELS[1].id)) && !isUnlocked(locById(LEVELS[2].id)), "level1 opens level2 only");
+    check(locById(LEVELS[0].id).fish.every(function (f) { return f.caught; }), "caught stay caught");
+    for (var li = 1; li < LEVELS.length - 1; li++) {
+      locById(LEVELS[li].id).fish.forEach(catchFish);
+      check(isUnlocked(locById(LEVELS[li + 1].id)), "clear " + LEVELS[li].id + " opens next");
+    }
+    check(cleared(locById(LEVELS[0].id)), "home stays clear");
     state.gear.hat = false; state.gear.clothes = false;
     check(saleEach("spotty").p === 4, "base price");
     state.gear.clothes = true; check(saleEach("spotty").p === 6, "clothes bonus");
@@ -1038,26 +1230,26 @@
     check(state.gear.bait === true && state.money === 0, "bought bait");
     buy("bait");
     check(state.money === 0 && state.gear.bait === true, "no double buy");
+    state.gear.pole = false; var shortCast = maxCast(); state.gear.pole = true;
+    check(maxCast() > shortCast, "pole longer");
+    var farAim = clampCast({ x: angler.x, y: water.y + 2 });
+    check(Math.hypot(farAim.x - angler.x, farAim.y - angler.y) <= maxCast() + 1, "cast capped with pole");
     state.gear.pole = false;
-    var far = clampCast({ x: water.x + water.w - 2, y: water.y + 2 });
-    var nearEdge = Math.hypot(far.x - angler.x, far.y - angler.y);
-    check(nearEdge > water.h * 0.55, "cast reaches far water without pole");
-    check(far.y >= water.y && far.y <= water.y + water.h && far.x >= water.x && far.x <= water.x + water.w, "cast stays in water");
-    var bank = clampCast({ x: W / 2, y: H - 2 });
-    check(bank.y <= water.y + water.h - 8, "cast not on bank");
-    state.gear.pole = true;
-    var farPole = clampCast({ x: water.x + 2, y: water.y + 2 });
-    check(Math.hypot(farPole.x - angler.x, farPole.y - angler.y) > water.h * 0.55, "cast reaches far water with pole");
-    state.gear.pole = false;
+    var shortAim = clampCast({ x: angler.x, y: water.y + 2 });
+    check(Math.hypot(shortAim.x - angler.x, shortAim.y - angler.y) <= maxCast() + 1, "cast capped without pole");
+    check(Math.hypot(shortAim.x - angler.x, shortAim.y - angler.y) < water.h * 0.9, "short cast not far bank");
+    var def = defaultTarget();
+    check(Math.hypot(def.x - angler.x, def.y - angler.y) <= maxCast() + 1, "default inside zone");
+    check(def.y > water.y + water.h * 0.15, "default not far bank");
     state.gear.line = false; var slow = windSpeed(); state.gear.line = true;
     check(windSpeed() > slow, "line faster"); state.gear.line = false;
     state.gear.bait = false; var smallBite = biteRadius(); state.gear.bait = true;
     check(biteRadius() > smallBite && biteChance() > 0.6, "bait bite"); state.gear.bait = false;
-    var home = locById("home");
-    home.fish.forEach(function (f) { f.caught = false; state.caught.home[f.index] = false; f.x = f.ox; f.y = f.oy; f.ax = 0; f.ay = 0; f.flee = 0; });
+    var home = locById(LEVELS[0].id);
+    home.fish.forEach(function (f) { f.caught = false; state.caught[home.id][f.index] = false; f.x = f.ox; f.y = f.oy; f.ax = 0; f.ay = 0; f.flee = 0; });
     state.creel = { spotty: 2, yellowbelly: 0, barra: 0, cod: 0 };
     var basketBefore = totalCreel();
-    currentId = "home"; phase = "out"; rng = function () { return 0; };
+    currentId = home.id; phase = "out"; rng = function () { return 0; };
     var fish = home.fish[0];
     hook = fishXY(fish);
     checkFish(); update(0.5);
@@ -1068,16 +1260,17 @@
     hook = rodTip(); finishHaul();
     check(fish.caught && totalCreel() === basketBefore + 1, "haul keeps fish");
     phase = "snagged"; snagTug = 0; snagPulls = 0; state.gear.line = false; rng = function () { return 0; };
+    currentSnag = { kind: "log", pull: 0.5 };
     var creelNow = totalCreel();
-    updateSnag(0.6, true);
+    updateSnag(0.9, true);
     check(phase === "idle" && totalCreel() === creelNow, "snap loses cast not basket");
-    phase = "snagged"; snagTug = 0; snagPulls = 0; state.gear.line = true;
-    updateSnag(0.5, true);
+    phase = "snagged"; snagTug = 0; snagPulls = 0; state.gear.line = true; currentSnag = { kind: "log", pull: 0.5 };
+    updateSnag(0.6, true);
     check(phase === "winding", "strong line frees");
-    state.gear.line = false; state.gear.net = true; netUsed = false; currentId = "home";
-    home.fish.forEach(function (f) { if (f !== fish) { f.caught = true; state.caught.home[f.index] = true; } });
+    state.gear.line = false; state.gear.net = true; netUsed = false; currentId = home.id;
+    home.fish.forEach(function (f) { if (f !== fish) { f.caught = true; state.caught[home.id][f.index] = true; } });
     var near = home.fish[1];
-    near.caught = false; state.caught.home[near.index] = false;
+    near.caught = false; state.caught[home.id][near.index] = false;
     near.x = 0.5; near.y = 0.84; near.ax = 0; near.ay = 0; near.flee = 0;
     var before = totalCreel();
     useNet();
@@ -1085,19 +1278,37 @@
     var before2 = totalCreel(); useNet();
     check(totalCreel() === before2, "net once per visit");
     netUsed = false;
-    near.caught = false; state.caught.home[near.index] = false;
+    near.caught = false; state.caught[home.id][near.index] = false;
     home.fish.forEach(function (f) { if (!f.caught) { f.x = 0.5; f.y = 0.12; f.ax = 0; f.ay = 0; f.flee = 0; } });
     var before3 = totalCreel(); useNet();
     check(totalCreel() === before3, "net misses far fish");
     state.gear.berley = true;
-    var mover = locById("deep").fish[0];
-    mover.caught = false; mover.x = 0.2; mover.y = 0.2;
+    var deep = locById("deep");
+    var mover = deep.fish[0];
+    mover.caught = false; mover.x = 0.2; mover.y = 0.2; mover.tx = 0.2; mover.ty = 0.2;
     currentId = "deep"; berley = { x: 0.8, y: 0.8 }; berleyT = 5;
     updateFish(1);
     check(mover.x > 0.2 && mover.y > 0.2, "berley attracts");
+    var snagLoc = locById("creek");
+    var snagFish = snagLoc.fish[0];
+    snagFish.caught = false; snagFish.x = 0.5; snagFish.y = 0.8; snagFish.tx = 0.5; snagFish.ty = 0.8;
+    snagFish.retarget = 0; snagFish.linger = 0;
+    currentId = "creek"; berleyT = 0; berley = null;
+    rng = function () { return 0.01; };
+    retargetFish(snagFish, snagLoc);
+    check(Math.hypot(snagFish.tx - 0.5, snagFish.ty - 0.8) > 0.05, "snag retarget moves");
+    var nearSnag = false;
+    snagLoc.snags.forEach(function (s) {
+      if (Math.hypot(snagFish.tx - s.x, snagFish.ty - s.y) < 0.2) nearSnag = true;
+    });
+    check(nearSnag, "snag attraction picks near snag");
+    rng = Math.random;
     runtime.forEach(function (loc) { loc.fish.forEach(function (f) { if (!f.caught) catchFish(f); }); });
     check(runtime.every(cleared), "can clear all spots");
-    check(locById("home").snags.length === 0 && locById("creek").snags.length > 0 && locById("deep").snags.length > 0, "snags later only");
+    check(locById("home").snags.length === 0, "home no snags");
+    check(locById("dam").snags.length === 1, "early mild snag");
+    check(locById("champion").snags.length >= 5, "late many snags");
+    check(locById("champion").snags.every(function (s) { return s.pull >= 0.9; }), "late strong pull");
     try { draw(); } catch (err) { problems.push("draw " + err.message); }
     var out = document.getElementById("selftest");
     out.hidden = false;
