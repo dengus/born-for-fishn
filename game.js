@@ -13,9 +13,9 @@
     { id: "bait", name: "Bait", price: 8, effect: "Fish bite more often when the hook passes close. A green ring shows the bigger bite." },
     { id: "berley", name: "Berley", price: 12, effect: "Sprinkle berley. Fish swim over to the cloud." },
     { id: "net", name: "Net", price: 30, effect: "Scoop one nearby fish, once each visit to a spot." },
-    { id: "hat", name: "Hat", price: 10, effect: "A lucky hat on your head. The shop pays 25% more." },
+    { id: "hat", name: "Hat", price: 10, effect: "A lucky hat on your head. Fish pay 25% more when you catch them." },
     { id: "sunscreen", name: "Sunscreen", price: 14, effect: "Fewer snags grab the line. You get a shiny nose." },
-    { id: "clothes", name: "Clothes", price: 22, effect: "A colourful shirt. Every fish sells for $2 more." }
+    { id: "clothes", name: "Clothes", price: 22, effect: "A colourful shirt. Every fish pays $2 more when you catch it." }
   ];
   var LEVELS = [
     {
@@ -99,6 +99,9 @@
         { kind: "weed", x: 0.86, y: 0.42, pull: 0.55 },
         { kind: "boot", x: 0.48, y: 0.30, pull: 0.56 }
       ],
+      crocs: [
+        { x: 0.08, y: 0.16, spd: 0.16, eat: 1.25 }
+      ],
       fish: [
         { sp: "yellowbelly", x: 0.26, y: 0.70, ax: 0.09, ay: 0.06, spd: 0.95, ph: 0.5 },
         { sp: "barra", x: 0.52, y: 0.56, ax: 0.10, ay: 0.09, spd: 0.76, ph: 1.1 },
@@ -113,6 +116,9 @@
         { kind: "log", x: 0.86, y: 0.40, pull: 0.64 },
         { kind: "boot", x: 0.72, y: 0.64, pull: 0.6 },
         { kind: "weed", x: 0.28, y: 0.24, pull: 0.58 }
+      ],
+      crocs: [
+        { x: 0.92, y: 0.14, spd: 0.16, eat: 1.25 }
       ],
       fish: [
         { sp: "barra", x: 0.30, y: 0.66, ax: 0.09, ay: 0.10, spd: 0.74, ph: 0.4 },
@@ -129,6 +135,9 @@
         { kind: "weed", x: 0.40, y: 0.32, pull: 0.66 },
         { kind: "log", x: 0.64, y: 0.22, pull: 0.72 }
       ],
+      crocs: [
+        { x: 0.1, y: 0.18, spd: 0.16, eat: 1.25 }
+      ],
       fish: [
         { sp: "barra", x: 0.34, y: 0.70, ax: 0.09, ay: 0.09, spd: 0.78, ph: 0.2 },
         { sp: "barra", x: 0.68, y: 0.58, ax: 0.10, ay: 0.10, spd: 0.84, ph: 1.0 },
@@ -143,6 +152,9 @@
         { kind: "log", x: 0.84, y: 0.54, pull: 0.8 },
         { kind: "weed", x: 0.34, y: 0.36, pull: 0.74 },
         { kind: "boot", x: 0.62, y: 0.24, pull: 0.76 }
+      ],
+      crocs: [
+        { x: 0.9, y: 0.16, spd: 0.16, eat: 1.25 }
       ],
       fish: [
         { sp: "barra", x: 0.28, y: 0.74, ax: 0.09, ay: 0.08, spd: 0.8, ph: 0.5 },
@@ -159,6 +171,10 @@
         { kind: "boot", x: 0.30, y: 0.34, pull: 0.9 },
         { kind: "log", x: 0.58, y: 0.22, pull: 0.92 },
         { kind: "weed", x: 0.72, y: 0.68, pull: 0.84 }
+      ],
+      crocs: [
+        { x: 0.08, y: 0.14, spd: 0.30, eat: 0.62 },
+        { x: 0.92, y: 0.2, spd: 0.30, eat: 0.62 }
       ],
       fish: [
         { sp: "barra", x: 0.24, y: 0.72, ax: 0.10, ay: 0.09, spd: 0.82, ph: 0.3 },
@@ -177,6 +193,11 @@
         { kind: "log", x: 0.54, y: 0.26, pull: 1.0 },
         { kind: "weed", x: 0.74, y: 0.70, pull: 0.94 },
         { kind: "boot", x: 0.44, y: 0.48, pull: 0.98 }
+      ],
+      crocs: [
+        { x: 0.06, y: 0.42, spd: 0.36, eat: 0.48 },
+        { x: 0.94, y: 0.42, spd: 0.36, eat: 0.48 },
+        { x: 0.5, y: 0.9, spd: 0.36, eat: 0.48 }
       ],
       fish: [
         { sp: "yellowbelly", x: 0.20, y: 0.78, ax: 0.09, ay: 0.05, spd: 1.0, ph: 0.2 },
@@ -197,7 +218,7 @@
     return {
       money: 0, gear: gear, best: null,
       creel: { spotty: 0, yellowbelly: 0, barra: 0, cod: 0 },
-      caught: {}, helpSeen: false, sound: true
+      caught: {}, helpSeen: false, sound: true, catchPay: true
     };
   }
   function loadState() {
@@ -217,10 +238,24 @@
       if (raw.caught && typeof raw.caught === "object") base.caught = raw.caught;
       base.helpSeen = !!raw.helpSeen;
       if (typeof raw.sound === "boolean") base.sound = raw.sound;
+      if (!raw.catchPay) {
+        Object.keys(base.creel).forEach(function (sp) {
+          var n = base.creel[sp] || 0;
+          if (!n || !SPECIES[sp]) return;
+          var price = SPECIES[sp].price;
+          if (base.gear.clothes) price += 2;
+          if (base.gear.hat) price = Math.round(price * 1.25);
+          base.money += price * n;
+        });
+        base._migrated = true;
+      }
+      base.catchPay = true;
     } catch (e) {}
     return base;
   }
   var state = loadState();
+  var migratedCatchPay = !!state._migrated;
+  delete state._migrated;
   var allowSave = true;
   function save() {
     if (!allowSave) return;
@@ -240,12 +275,19 @@
         return {
           id: loc.id + "-" + i, locId: loc.id, index: i, sp: f.sp,
           ox: f.x, oy: f.y, x: f.x, y: f.y, tx: f.x, ty: f.y, ax: f.ax, ay: f.ay, spd: f.spd, ph: f.ph,
-          caught: !!state.caught[loc.id][i], flee: 0, fleeX: 0, fleeY: 0, facing: 1, px: null,
+          caught: !!state.caught[loc.id][i], eaten: false, flee: 0, fleeX: 0, fleeY: 0, facing: 1, px: null,
           linger: 0, retarget: 0.4 + i * 0.15
+        };
+      }),
+      crocs: (loc.crocs || []).map(function (c, i) {
+        return {
+          id: loc.id + "-croc-" + i, x: c.x, y: c.y, ox: c.x, oy: c.y,
+          spd: c.spd, eatTime: c.eat, facing: c.x < 0.5 ? 1 : -1, chomp: 0, targetId: null
         };
       })
     };
   });
+  if (migratedCatchPay) save();
 
   var canvas = document.getElementById("pond");
   var ctx = canvas.getContext("2d");
@@ -270,8 +312,8 @@
   function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
   function currentLoc() { return runtime.filter(function (l) { return l.id === currentId; })[0]; }
   function locById(id) { return runtime.filter(function (l) { return l.id === id; })[0]; }
-  function liveCount(loc) { return loc.fish.filter(function (f) { return !f.caught; }).length; }
-  function cleared(loc) { return liveCount(loc) === 0; }
+  function liveCount(loc) { return loc.fish.filter(function (f) { return !f.caught && !f.eaten; }).length; }
+  function cleared(loc) { return loc.fish.length > 0 && loc.fish.every(function (f) { return f.caught && !f.eaten; }); }
   function levelIndex(id) {
     for (var i = 0; i < LEVELS.length; i++) if (LEVELS[i].id === id) return i;
     return -1;
@@ -376,6 +418,10 @@
       } else if (kind === "snag") {
         o.type = "square";
         o.frequency.setValueAtTime(180, now);
+      } else if (kind === "gulp") {
+        o.type = "sine";
+        o.frequency.setValueAtTime(240, now);
+        o.frequency.exponentialRampToValueAtTime(90, now + 0.22);
       } else {
         o.frequency.setValueAtTime(kind === "coin" ? 880 : 720, now);
       }
@@ -411,6 +457,9 @@
     if (state.gear.bait) bits.push("Good bait");
     if (state.gear.sunscreen) bits.push("Sunscreen on");
     if (state.gear.berley) bits.push("Berley ready");
+    if (loc.crocs && loc.crocs.length && !cleared(loc)) {
+      bits.push(loc.crocs.length === 1 ? "1 crocodile" : (loc.crocs.length + " crocodiles"));
+    }
     document.getElementById("status").textContent = bits.join(" · ");
     document.body.dataset.fresh = state.best ? "0" : "1";
     document.getElementById("berley-btn").textContent = berleyT > 0 ? "Berley…" : "Berley";
@@ -446,28 +495,67 @@
     renderLocs();
     renderHud();
     var left = liveCount(loc);
-    toast(left === 0 ? (loc.name + " stays clear.") : (loc.name + ". " + left + " fish left."));
+    var crocNote = "";
+    if (left > 0 && loc.crocs && loc.crocs.length) {
+      crocNote = loc.crocs.length === 1 ? " A crocodile wants the fish too." : " Crocodiles want the fish too.";
+    }
+    toast(left === 0 ? (loc.name + " stays clear.") : (loc.name + ". " + left + " fish left." + crocNote));
   }
   function catchFish(f) {
-    if (!f || f.caught) return;
+    if (!f || f.caught || f.eaten) return;
     f.caught = true;
+    f.eaten = false;
     state.caught[f.locId][f.index] = true;
     state.creel[f.sp] = (state.creel[f.sp] || 0) + 1;
     var spec = SPECIES[f.sp];
+    var sale = saleEach(f.sp);
+    state.money += sale.p;
     if (!state.best || spec.points > state.best.points) {
       state.best = { name: spec.name, points: spec.points, sp: f.sp };
     }
     save();
     var loc = locById(f.locId);
     var left = liveCount(loc);
+    var payNote = sale.note ? (" (" + sale.note + ")") : "";
     if (left === 0) {
       var next = LEVELS[levelIndex(f.locId) + 1];
-      toast(next ? (loc.name + " is clear! " + next.name + " is open.") : "Every spot is clear. You were born for fish'n!");
+      toast((next ? (loc.name + " is clear! " + next.name + " is open. ") : "Every spot is clear. You were born for fish'n! ") + "+$" + sale.p + payNote);
       sfx("win");
     } else {
-      toast("A " + spec.name + " for the basket! " + left + " fish left here.");
+      toast("A " + spec.name + "! +$" + sale.p + payNote + ". " + left + " fish left here.");
       sfx("catch");
     }
+    var where = fishXY(f);
+    floatText(where.x, where.y - 28, "+$" + sale.p, "#0b7a3b");
+    renderHud();
+    renderLocs();
+  }
+  function resetCroc(c) {
+    c.x = c.ox; c.y = c.oy; c.chomp = 0; c.targetId = null; c.facing = c.ox < 0.5 ? 1 : -1;
+  }
+  function resetLevelRun(loc) {
+    loc.fish.forEach(function (f) {
+      f.caught = false;
+      f.eaten = false;
+      f.x = f.ox; f.y = f.oy; f.tx = f.ox; f.ty = f.oy;
+      f.flee = 0; f.fleeX = 0; f.fleeY = 0; f.linger = 0;
+      f.retarget = 0.45 + f.index * 0.15;
+      state.caught[loc.id][f.index] = false;
+    });
+    (loc.crocs || []).forEach(resetCroc);
+  }
+  function failLevel(loc, spec) {
+    resetLevelRun(loc);
+    if (currentId === loc.id) {
+      resetCast();
+      netUsed = false;
+      berleyT = 0;
+      berley = null;
+    }
+    save();
+    var who = spec ? spec.name : "fish";
+    toast("A crocodile ate the " + who + ". " + loc.name + " starts again. Your money and earlier spots stay.");
+    sfx("gulp");
     renderHud();
     renderLocs();
   }
@@ -510,7 +598,7 @@
     var loc = currentLoc();
     for (var i = 0; i < loc.fish.length; i++) {
       var f = loc.fish[i];
-      if (f.caught || checked.has(f.id)) continue;
+      if (f.caught || f.eaten || checked.has(f.id)) continue;
       var p = fishXY(f);
       if (dist(p, hook) <= biteRadius()) {
         checked.add(f.id);
@@ -679,6 +767,65 @@
     });
     if (berleyT > 0) { berleyT -= dt; if (berleyT <= 0) renderHud(); }
   }
+  function crocFishPos(f) {
+    if (haulId && f.id === haulId && hook && water.w > 0 && water.h > 0) {
+      return {
+        x: clamp((hook.x - water.x) / water.w, 0.06, 0.94),
+        y: clamp((hook.y - water.y) / water.h, 0.08, 0.9)
+      };
+    }
+    var p = fishXY(f);
+    if (!(water.w > 0) || !(water.h > 0)) return { x: f.x, y: f.y };
+    return {
+      x: clamp((p.x - water.x) / water.w, 0.06, 0.94),
+      y: clamp((p.y - water.y) / water.h, 0.08, 0.9)
+    };
+  }
+  function chooseCrocTarget(croc, alive, taken) {
+    var best = null, bestD = 1e9, fallback = null, fallD = 1e9;
+    for (var i = 0; i < alive.length; i++) {
+      var f = alive[i];
+      var pos = crocFishPos(f);
+      var d = Math.hypot(pos.x - croc.x, pos.y - croc.y);
+      if (d < fallD) { fallD = d; fallback = f; }
+      if (taken[f.id]) continue;
+      if (d < bestD) { bestD = d; best = f; }
+    }
+    return best || fallback;
+  }
+  function updateCrocs(dt) {
+    var loc = currentLoc();
+    if (!loc || !loc.crocs || !loc.crocs.length || cleared(loc)) return;
+    var alive = loc.fish.filter(function (f) { return !f.caught && !f.eaten; });
+    if (!alive.length) return;
+    var taken = {};
+    for (var i = 0; i < loc.crocs.length; i++) {
+      var c = loc.crocs[i];
+      var target = chooseCrocTarget(c, alive, taken);
+      if (!target) { c.targetId = null; c.chomp = 0; continue; }
+      taken[target.id] = true;
+      c.targetId = target.id;
+      var pos = crocFishPos(target);
+      var dx = pos.x - c.x, dy = pos.y - c.y;
+      var d = Math.hypot(dx, dy) || 0.0001;
+      c.facing = dx >= 0 ? 1 : -1;
+      if (d <= 0.075) {
+        c.chomp += dt;
+        if (c.chomp >= c.eatTime) {
+          target.eaten = true;
+          var vis = fishXY(target);
+          floatText(vis.x, vis.y - 20, "Gulp!", "#1b7f4a");
+          failLevel(loc, SPECIES[target.sp]);
+          return;
+        }
+      } else {
+        var step = Math.min(c.spd * dt, d);
+        c.x = clamp(c.x + (dx / d) * step, 0.04, 0.96);
+        c.y = clamp(c.y + (dy / d) * step, 0.06, 0.92);
+        c.chomp = Math.max(0, c.chomp - dt);
+      }
+    }
+  }
   function update(dt) {
     t += dt;
     if (toastTimer > 0) {
@@ -715,6 +862,7 @@
       if (dragWind > 0) { amount += dragWind; dragWind = 0; }
       if (amount > 0) moveHook(amount);
     }
+    updateCrocs(dt);
   }
   function roundRect(x, y, w, h, r) {
     ctx.beginPath();
@@ -767,7 +915,7 @@
     var spec = SPECIES[sp];
     var fs = Math.max(18, Math.round(18 * S));
     var small = Math.max(15, fs - 2);
-    var t1 = spec.points + " pts", t2 = "$" + spec.price;
+    var t1 = spec.points + " pts", t2 = "$" + saleEach(sp).p;
     ctx.textAlign = "center"; ctx.textBaseline = "middle";
     ctx.font = "800 " + fs + "px Trebuchet MS, Segoe UI, sans-serif";
     var w = Math.max(ctx.measureText(t1).width, ctx.measureText(t2).width) + 16;
@@ -808,6 +956,95 @@
     ctx.font = "800 " + Math.max(12, Math.round(13 * S)) + "px Trebuchet MS, Segoe UI, sans-serif";
     ctx.textAlign = "center";
     ctx.fillText(sn.kind, p.x, p.y + r + 12);
+  }
+  function drawCroc(c) {
+    var p = toPx(c.x, c.y);
+    var bite = c.eatTime > 0 ? clamp(c.chomp / c.eatTime, 0, 1) : 0;
+    ctx.save();
+    ctx.translate(p.x, p.y + Math.sin(t * 3 + c.ox * 8) * 2 * S);
+    ctx.scale((c.facing || 1) * S, S);
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = "#143044";
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+    var wag = Math.sin(t * 7 + c.oy * 5) * 10;
+    ctx.fillStyle = "#2d7a38";
+    ctx.beginPath();
+    ctx.moveTo(-16, 2);
+    ctx.quadraticCurveTo(-34, wag - 8, -50, wag);
+    ctx.quadraticCurveTo(-36, wag + 12, -14, 12);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = "#3fa34d";
+    ctx.beginPath();
+    ctx.ellipse(0, 2, 28, 15, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = "#c6ee9a";
+    ctx.beginPath();
+    ctx.ellipse(2, 8, 14, 6, 0, 0, Math.PI);
+    ctx.fill();
+    ctx.fillStyle = "#3fa34d";
+    ctx.beginPath();
+    ctx.ellipse(30, 4, 18, 8, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = "#143044";
+    ctx.beginPath();
+    ctx.arc(42, 1, 1.5, 0, Math.PI * 2);
+    ctx.arc(42, 7, 1.5, 0, Math.PI * 2);
+    ctx.fill();
+    if (bite > 0.05) {
+      ctx.fillStyle = "#163024";
+      ctx.beginPath();
+      ctx.ellipse(42, 6, 8, 3 + bite * 7, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#fffdf6";
+      ctx.beginPath();
+      ctx.moveTo(34, 3); ctx.lineTo(38, 6); ctx.lineTo(34, 7); ctx.closePath(); ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(46, 3); ctx.lineTo(42, 6); ctx.lineTo(46, 7); ctx.closePath(); ctx.fill();
+      if (bite > 0.35) {
+        ctx.fillStyle = "#ff9f1c";
+        ctx.beginPath();
+        ctx.ellipse(42, 8, 5, 3, 0.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#143044";
+        ctx.stroke();
+      }
+    } else {
+      ctx.strokeStyle = "#143044";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(36, 6, 6, 0.2, Math.PI - 0.2);
+      ctx.stroke();
+    }
+    ctx.fillStyle = "#fff";
+    ctx.strokeStyle = "#143044";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(16, -8, 6.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = "#143044";
+    ctx.beginPath();
+    ctx.arc(17.6, -8, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#2d7a38";
+    ctx.beginPath(); ctx.ellipse(-4, 16, 6, 3, 0.4, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(12, 16, 6, 3, -0.2, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.restore();
+    ctx.fillStyle = "#143044";
+    ctx.font = "800 " + Math.max(12, Math.round(13 * S)) + "px Trebuchet MS, Segoe UI, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "alphabetic";
+    ctx.fillText("croc", p.x, p.y + 30 * S);
+    if (bite > 0) {
+      ctx.fillStyle = "#9a3412";
+      ctx.font = "800 " + Math.max(16, Math.round(18 * S)) + "px Trebuchet MS, Segoe UI, sans-serif";
+      ctx.fillText("!", p.x, p.y - 26 * S);
+    }
   }
   function drawAngler() {
     ctx.save(); ctx.translate(angler.x, angler.y); ctx.scale(S, S);
@@ -922,7 +1159,7 @@
       ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(sp.x, sp.y, sp.r, 0, 7); ctx.stroke();
     });
     loc.fish.forEach(function (f) {
-      if (f.caught || (haulId && f.id === haulId)) return;
+      if (f.caught || f.eaten || (haulId && f.id === haulId)) return;
       var p = fishXY(f);
       if (f.px != null) f.facing = p.x >= f.px ? 1 : -1;
       f.px = p.x;
@@ -931,6 +1168,28 @@
       var side = f.index % 2 === 0 ? -1 : 1;
       drawBadge(p.x + side * 8, p.y - rad * 0.85, f.sp);
     });
+    if (!cleared(loc) && loc.crocs && loc.crocs.length) {
+      loc.crocs.forEach(function (c) {
+        if (!c.targetId) return;
+        var tf = null;
+        loc.fish.forEach(function (f) {
+          if (f.id === c.targetId && !f.caught && !f.eaten) tf = f;
+        });
+        if (!tf) return;
+        var a = toPx(c.x, c.y), b = fishXY(tf);
+        ctx.save();
+        ctx.strokeStyle = "rgba(255, 209, 102, 0.95)";
+        ctx.setLineDash([6, 7]);
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
+      });
+      loc.crocs.forEach(drawCroc);
+    }
     if (phase === "idle" && aimed && aim) { ctx.globalAlpha = 0.45; drawHookAt(aim.x, aim.y); ctx.globalAlpha = 1; }
     if (hook && phase !== "idle") {
       var tip = rodTip();
@@ -984,19 +1243,7 @@
     });
   }
   function renderShop() {
-    var html = "<h3>Your basket</h3>", any = false;
-    Object.keys(SPECIES).forEach(function (sp) {
-      var n = state.creel[sp] || 0;
-      if (!n) return;
-      any = true;
-      var sale = saleEach(sp);
-      html += "<div class='card'><p><b>" + SPECIES[sp].name + "</b> × " + n + " · " + SPECIES[sp].points + " pts</p>" +
-        "<p class='price'>Sells for $" + sale.p + " each" + (sale.note ? " (" + sale.note + ")" : "") + "</p>" +
-        "<button class='mini' type='button' data-sell='" + sp + "'>Sell " + SPECIES[sp].name + " · $" + (sale.p * n) + "</button></div>";
-    });
-    html += any
-      ? "<button class='mini' type='button' data-sell='all'>Sell all fish</button>"
-      : "<div class='card'><p>Your basket is empty. Catch some fish first.</p></div>";
+    var html = "<div class='card'><p>Fish pay you the moment you catch them. A hat and colourful clothes add to that pay. The basket is only a list of what you have caught.</p></div>";
     html += "<h3>Gear</h3>";
     UPGRADES.forEach(function (u) {
       var owned = !!state.gear[u.id];
@@ -1026,9 +1273,11 @@
       var n = state.creel[sp] || 0;
       if (!n) return;
       any = true;
-      html += "<div class='card'><p><b>" + SPECIES[sp].name + "</b> × " + n + " · " + SPECIES[sp].points + " pts · $" + SPECIES[sp].price + " each before bonuses</p></div>";
+      var sale = saleEach(sp);
+      html += "<div class='card'><p><b>" + SPECIES[sp].name + "</b> × " + n + " · " + SPECIES[sp].points + " pts</p>" +
+        "<p class='price'>Already paid when caught. The next one pays $" + sale.p + (sale.note ? " (" + sale.note + ")" : "") + ".</p></div>";
     });
-    document.getElementById("basket-list").innerHTML = any ? html : "<div class='card'><p>Nothing yet. Catch a fish!</p></div>";
+    document.getElementById("basket-list").innerHTML = any ? html : "<div class='card'><p>Nothing yet. Catch a fish and the money goes straight to you.</p></div>";
   }
   function buy(id) {
     var u = UPGRADES.filter(function (x) { return x.id === id; })[0];
@@ -1036,18 +1285,6 @@
     if (state.money < u.price) { toast("Not enough money."); return; }
     state.money -= u.price; state.gear[id] = true; save(); sfx("coin");
     toast(u.name + " bought!"); renderShop(); renderHud();
-  }
-  function sell(sp) {
-    var list = sp === "all" ? Object.keys(SPECIES) : [sp], total = 0;
-    list.forEach(function (id) {
-      var n = state.creel[id] || 0;
-      if (!n) return;
-      total += saleEach(id).p * n;
-      state.creel[id] = 0;
-    });
-    if (!total) return;
-    state.money += total; save(); sfx("coin");
-    toast("Sold for $" + total + "."); renderShop(); renderHud();
   }
   function sprinkle() {
     if (paused()) return;
@@ -1068,7 +1305,7 @@
     if (netUsed) { toast("The net can scoop once each visit."); return; }
     var best = null, bestD = 1e9;
     currentLoc().fish.forEach(function (f) {
-      if (f.caught) return;
+      if (f.caught || f.eaten) return;
       var d = dist(fishXY(f), angler);
       if (d < bestD) { bestD = d; best = f; }
     });
@@ -1108,7 +1345,6 @@
     var b = e.target.closest("button");
     if (!b || b.disabled) return;
     if (b.dataset.buy) buy(b.dataset.buy);
-    else if (b.dataset.sell) sell(b.dataset.sell);
     else if (b.dataset.reset && window.confirm("Start again? This forgets your money, gear, and fish.")) {
       try { localStorage.removeItem(KEY); } catch (err) {}
       location.reload();
@@ -1309,7 +1545,72 @@
     check(locById("dam").snags.length === 1, "early mild snag");
     check(locById("champion").snags.length >= 5, "late many snags");
     check(locById("champion").snags.every(function (s) { return s.pull >= 0.9; }), "late strong pull");
+    state.gear.hat = false; state.gear.clothes = false; state.money = 20;
+    var paid = locById("home").fish[0];
+    paid.caught = false; paid.eaten = false; state.caught.home[0] = false;
+    var creelSpot = state.creel.spotty;
+    catchFish(paid);
+    check(state.money === 24, "catch pays immediately");
+    check(paid.caught && state.creel.spotty === creelSpot + 1, "basket still lists the catch");
+    state.gear.clothes = true; state.gear.hat = true; state.money = 3;
+    paid.caught = false; paid.eaten = false; state.caught.home[0] = false;
+    catchFish(paid);
+    check(state.money === 11, "hat and clothes pay at catch");
+    check(cleared(locById("home")), "home still clear after pay");
+    state.gear.hat = false; state.gear.clothes = false;
+    renderShop();
+    check(document.getElementById("shop-body").innerHTML.indexOf("data-sell") < 0, "shop has no sell step");
+    ["home", "dam", "willow", "creek", "reeds", "billy"].forEach(function (id) {
+      check(locById(id).crocs.length === 0, id + " no crocs");
+    });
+    ["rocky", "deep", "muddy", "logpile"].forEach(function (id) {
+      check(locById(id).crocs.length === 1, id + " one croc");
+      check(Math.abs(locById(id).crocs[0].spd - 0.16) < 0.001, id + " slow croc");
+      check(Math.abs(locById(id).crocs[0].eatTime - 1.25) < 0.001, id + " slow eat");
+    });
+    check(locById("storm").crocs.length === 2, "storm two crocs");
+    check(locById("champion").crocs.length === 3, "champion three crocs");
+    check(locById("storm").crocs[0].spd > locById("rocky").crocs[0].spd, "storm faster swim");
+    check(locById("champion").crocs[0].spd > locById("storm").crocs[0].spd, "champion fastest swim");
+    check(locById("storm").crocs[0].eatTime < locById("rocky").crocs[0].eatTime, "storm faster eat");
+    check(locById("champion").crocs[0].eatTime < locById("storm").crocs[0].eatTime, "champion fastest eat");
+    var rocky = locById("rocky");
+    rocky.fish.forEach(function (f) {
+      f.caught = false; f.eaten = false; f.x = 0.85; f.y = 0.8; f.ax = 0; f.ay = 0; f.flee = 0;
+      state.caught.rocky[f.index] = false;
+    });
+    var c0 = rocky.crocs[0];
+    c0.x = 0.2; c0.y = 0.2; c0.chomp = 0; c0.targetId = null;
+    currentId = "rocky";
+    updateCrocs(1);
+    check(c0.x > 0.2 && c0.y > 0.2, "croc swims toward a fish");
+    check(rocky.fish.every(function (f) { return !f.eaten; }), "chase is not an instant eat");
+    check(!!c0.targetId, "croc picks a fish");
+    c0.x = 0.85; c0.y = 0.8; c0.chomp = c0.eatTime;
+    state.money = 500; state.gear.pole = true;
+    var creelSnap = totalCreel();
+    var deepStill = cleared(locById("deep"));
+    updateCrocs(0.05);
+    check(state.money === 500, "failed level keeps money");
+    check(state.gear.pole === true, "failed level keeps gear");
+    check(totalCreel() === creelSnap, "failed level keeps basket");
+    check(cleared(locById("home")) && deepStill && cleared(locById("deep")), "other levels stay cleared");
+    check(!cleared(rocky), "failed level is not cleared");
+    check(rocky.fish.every(function (f) { return !f.caught && !f.eaten && f.x === f.ox && f.y === f.oy; }), "failed level respawns its fish");
+    check(c0.x === c0.ox && c0.y === c0.oy && c0.chomp === 0 && !c0.targetId, "crocs reset");
+    rocky.fish.forEach(catchFish);
+    check(cleared(rocky), "rocky can be cleared again");
+    var parked = c0.x;
+    updateCrocs(2);
+    check(c0.x === parked && cleared(rocky), "crocs leave a cleared spot alone");
+    currentId = "champion";
+    var champ = locById("champion");
+    champ.fish[0].caught = false; champ.fish[0].eaten = false; state.caught.champion[0] = false;
+    champ.crocs[0].targetId = champ.fish[0].id;
+    champ.crocs[0].chomp = champ.crocs[0].eatTime * 0.5;
     try { draw(); } catch (err) { problems.push("draw " + err.message); }
+    currentId = "home";
+    try { draw(); } catch (err) { problems.push("draw home " + err.message); }
     var out = document.getElementById("selftest");
     out.hidden = false;
     out.textContent = problems.length ? ("FAIL " + problems.join(" | ")) : "PASS";

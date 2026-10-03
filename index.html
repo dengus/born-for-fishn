@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#8fd4ff">
-<meta name="description" content="Born for fish'n is a small fishing game for kids. Catch every fish in a spot, sell them, and buy gear.">
+<meta name="description" content="Born for fish'n is a small fishing game for kids. Catch every fish in a spot, get paid straight away, and buy gear. Later spots have crocodiles.">
 <title>Born for fish'n</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%238fd4ff'/%3E%3Cellipse cx='34' cy='34' rx='18' ry='12' fill='%23ff9f1c' stroke='%23143044' stroke-width='3'/%3E%3Cpath d='M16 34 L6 24 L6 44 Z' fill='%23ffd166' stroke='%23143044' stroke-width='3'/%3E%3Ccircle cx='42' cy='30' r='3' fill='%23143044'/%3E%3C/svg%3E">
 <script>
@@ -133,9 +133,9 @@ try {
   <div id="basket" hidden>
     <div class="sheet">
       <h2>Basket</h2>
-      <p>Your creel. Fish wait here until you sell them.</p>
+      <p>Fish you have caught. The money is already yours.</p>
       <div id="basket-list"></div>
-      <button id="basket-shop" class="act throw" type="button">Sell at the shop</button>
+      <button id="basket-shop" class="act throw" type="button">Open the shop</button>
       <button id="basket-close" class="act" type="button">Back</button>
     </div>
   </div>
@@ -146,8 +146,9 @@ try {
         <li>Press <b>Throw</b>, or drag on the water, to cast. The dotted circle shows how far you can throw. Buy a fishing pole to cast further.</li>
         <li>Hold <b>Wind</b>, or drag back towards you, to bring the hook in.</li>
         <li>You catch a fish only when the hook passes close on the way in. Tapping a fish does not catch it.</li>
-        <li>Keep fish in your basket, then sell them at the <b>Shop</b>.</li>
+        <li>You are paid as soon as you catch a fish. Spend that money in the <b>Shop</b>.</li>
         <li>Catch every fish in this spot to open the next one.</li>
+        <li>From Rocky Reach on, crocodiles try to eat the fish. If one gets a fish, that spot starts again. Your money and earlier spots stay.</li>
       </ol>
       <button id="help-go" class="act throw" type="button">Let's fish</button>
     </div>
