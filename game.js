@@ -100,7 +100,7 @@
         { kind: "boot", x: 0.48, y: 0.30, pull: 0.56 }
       ],
       crocs: [
-        { x: 0.08, y: 0.16, spd: 0.16, eat: 1.25 }
+        { x: 0.08, y: 0.16, spd: 0.10, eat: 1.70 }
       ],
       fish: [
         { sp: "yellowbelly", x: 0.26, y: 0.70, ax: 0.09, ay: 0.06, spd: 0.95, ph: 0.5 },
@@ -118,7 +118,7 @@
         { kind: "weed", x: 0.28, y: 0.24, pull: 0.58 }
       ],
       crocs: [
-        { x: 0.92, y: 0.14, spd: 0.16, eat: 1.25 }
+        { x: 0.92, y: 0.14, spd: 0.10, eat: 1.70 }
       ],
       fish: [
         { sp: "barra", x: 0.30, y: 0.66, ax: 0.09, ay: 0.10, spd: 0.74, ph: 0.4 },
@@ -136,7 +136,7 @@
         { kind: "log", x: 0.64, y: 0.22, pull: 0.72 }
       ],
       crocs: [
-        { x: 0.1, y: 0.18, spd: 0.16, eat: 1.25 }
+        { x: 0.1, y: 0.18, spd: 0.10, eat: 1.70 }
       ],
       fish: [
         { sp: "barra", x: 0.34, y: 0.70, ax: 0.09, ay: 0.09, spd: 0.78, ph: 0.2 },
@@ -154,7 +154,7 @@
         { kind: "boot", x: 0.62, y: 0.24, pull: 0.76 }
       ],
       crocs: [
-        { x: 0.9, y: 0.16, spd: 0.16, eat: 1.25 }
+        { x: 0.9, y: 0.16, spd: 0.10, eat: 1.70 }
       ],
       fish: [
         { sp: "barra", x: 0.28, y: 0.74, ax: 0.09, ay: 0.08, spd: 0.8, ph: 0.5 },
@@ -173,8 +173,8 @@
         { kind: "weed", x: 0.72, y: 0.68, pull: 0.84 }
       ],
       crocs: [
-        { x: 0.08, y: 0.14, spd: 0.30, eat: 0.62 },
-        { x: 0.92, y: 0.2, spd: 0.30, eat: 0.62 }
+        { x: 0.08, y: 0.14, spd: 0.19, eat: 0.84 },
+        { x: 0.92, y: 0.2, spd: 0.19, eat: 0.84 }
       ],
       fish: [
         { sp: "barra", x: 0.24, y: 0.72, ax: 0.10, ay: 0.09, spd: 0.82, ph: 0.3 },
@@ -195,9 +195,9 @@
         { kind: "boot", x: 0.44, y: 0.48, pull: 0.98 }
       ],
       crocs: [
-        { x: 0.06, y: 0.42, spd: 0.36, eat: 0.48 },
-        { x: 0.94, y: 0.42, spd: 0.36, eat: 0.48 },
-        { x: 0.5, y: 0.9, spd: 0.36, eat: 0.48 }
+        { x: 0.06, y: 0.42, spd: 0.23, eat: 0.65 },
+        { x: 0.94, y: 0.42, spd: 0.23, eat: 0.65 },
+        { x: 0.5, y: 0.9, spd: 0.23, eat: 0.65 }
       ],
       fish: [
         { sp: "yellowbelly", x: 0.20, y: 0.78, ax: 0.09, ay: 0.05, spd: 1.0, ph: 0.2 },
@@ -781,10 +781,21 @@
       y: clamp((p.y - water.y) / water.h, 0.08, 0.9)
     };
   }
+  function fishCastPos(f) {
+    if (haulId && f.id === haulId && hook) return { x: hook.x, y: hook.y };
+    return fishXY(f);
+  }
+  function fishInCastReach(f) {
+    var reach = maxCast();
+    if (!(reach > 0)) return false;
+    var p = fishCastPos(f);
+    return Math.hypot(p.x - angler.x, p.y - angler.y) <= reach + 1;
+  }
   function chooseCrocTarget(croc, alive, taken) {
     var best = null, bestD = 1e9, fallback = null, fallD = 1e9;
     for (var i = 0; i < alive.length; i++) {
       var f = alive[i];
+      if (!fishInCastReach(f)) continue;
       var pos = crocFishPos(f);
       var d = Math.hypot(pos.x - croc.x, pos.y - croc.y);
       if (d < fallD) { fallD = d; fallback = f; }
@@ -1565,18 +1576,34 @@
     });
     ["rocky", "deep", "muddy", "logpile"].forEach(function (id) {
       check(locById(id).crocs.length === 1, id + " one croc");
-      check(Math.abs(locById(id).crocs[0].spd - 0.16) < 0.001, id + " slow croc");
-      check(Math.abs(locById(id).crocs[0].eatTime - 1.25) < 0.001, id + " slow eat");
+      check(Math.abs(locById(id).crocs[0].spd - 0.10) < 0.001, id + " slow croc");
+      check(Math.abs(locById(id).crocs[0].eatTime - 1.70) < 0.001, id + " slow eat");
     });
     check(locById("storm").crocs.length === 2, "storm two crocs");
+    check(Math.abs(locById("storm").crocs[0].spd - 0.19) < 0.001, "storm swim");
+    check(Math.abs(locById("storm").crocs[0].eatTime - 0.84) < 0.001, "storm eat");
     check(locById("champion").crocs.length === 3, "champion three crocs");
+    check(Math.abs(locById("champion").crocs[0].spd - 0.23) < 0.001, "champion swim");
+    check(Math.abs(locById("champion").crocs[0].eatTime - 0.65) < 0.001, "champion eat");
     check(locById("storm").crocs[0].spd > locById("rocky").crocs[0].spd, "storm faster swim");
     check(locById("champion").crocs[0].spd > locById("storm").crocs[0].spd, "champion fastest swim");
     check(locById("storm").crocs[0].eatTime < locById("rocky").crocs[0].eatTime, "storm faster eat");
     check(locById("champion").crocs[0].eatTime < locById("storm").crocs[0].eatTime, "champion fastest eat");
     var rocky = locById("rocky");
+    state.gear.pole = false;
     rocky.fish.forEach(function (f) {
-      f.caught = false; f.eaten = false; f.x = 0.85; f.y = 0.8; f.ax = 0; f.ay = 0; f.flee = 0;
+      f.caught = false; f.eaten = false; f.x = 0.15; f.y = 0.08; f.ax = 0; f.ay = 0; f.flee = 0;
+      state.caught.rocky[f.index] = false;
+    });
+    var cOut = rocky.crocs[0];
+    cOut.x = 0.2; cOut.y = 0.2; cOut.chomp = 0; cOut.targetId = null;
+    currentId = "rocky";
+    var parkedOut = cOut.x;
+    updateCrocs(1);
+    check(cOut.x === parkedOut && !cOut.targetId, "croc ignores fish outside cast reach");
+    check(rocky.fish.every(function (f) { return !f.eaten; }), "out-of-reach fish stay safe");
+    rocky.fish.forEach(function (f) {
+      f.caught = false; f.eaten = false; f.x = 0.5; f.y = 0.78; f.ax = 0; f.ay = 0; f.flee = 0;
       state.caught.rocky[f.index] = false;
     });
     var c0 = rocky.crocs[0];
@@ -1584,9 +1611,10 @@
     currentId = "rocky";
     updateCrocs(1);
     check(c0.x > 0.2 && c0.y > 0.2, "croc swims toward a fish");
+    check(fishInCastReach(rocky.fish[0]), "test fish inside cast reach");
     check(rocky.fish.every(function (f) { return !f.eaten; }), "chase is not an instant eat");
     check(!!c0.targetId, "croc picks a fish");
-    c0.x = 0.85; c0.y = 0.8; c0.chomp = c0.eatTime;
+    c0.x = 0.5; c0.y = 0.78; c0.chomp = c0.eatTime;
     state.money = 500; state.gear.pole = true;
     var creelSnap = totalCreel();
     var deepStill = cleared(locById("deep"));
