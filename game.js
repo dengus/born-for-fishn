@@ -8,7 +8,7 @@
     cod: { name: "Murray cod", points: 100, price: 45, body: "#6b8f71", belly: "#d5e2c8", mottled: true }
   };
   var UPGRADES = [
-    { id: "pole", name: "Fishing pole", price: 18, effect: "Throw the line much further. The dotted line on the pond grows." },
+    { id: "pole", name: "Fishing pole", price: 18, effect: "A sturdy teal pole on the bank. Casts already reach every bit of water." },
     { id: "line", name: "Fishing line", price: 26, effect: "Wind in faster. A snag will not snap this line. A snapped line only loses that cast." },
     { id: "bait", name: "Bait", price: 8, effect: "Fish bite more often when the hook passes close. A green ring shows the bigger bite." },
     { id: "berley", name: "Berley", price: 12, effect: "Sprinkle berley. Fish swim over to the cloud." },
@@ -155,7 +155,7 @@
     Object.keys(state.creel).forEach(function (k) { n += state.creel[k] || 0; });
     return n;
   }
-  function maxCast() { return state.gear.pole ? water.h * 1.08 : water.h * 0.62; }
+  function waterPad() { return Math.max(12, 16 * Math.max(S, 0.85)); }
   function windSpeed() { return state.gear.line ? 520 : 270; }
   function biteRadius() { return (state.gear.bait ? 58 : 36) * Math.max(S, 0.85); }
   function biteChance() { return state.gear.bait ? 0.9 : 0.6; }
@@ -274,7 +274,7 @@
     var loc = currentLoc();
     var left = liveCount(loc);
     var bits = [loc.name, left === 0 ? "Cleared" : (left + " fish left")];
-    bits.push(state.gear.pole ? "Long cast" : "Short cast");
+    if (state.gear.pole) bits.push("Teal pole");
     bits.push(state.gear.line ? "Strong line" : "Soft line");
     if (state.gear.bait) bits.push("Good bait");
     if (state.gear.sunscreen) bits.push("Sunscreen on");
@@ -340,18 +340,15 @@
     renderLocs();
   }
   function clampCast(p) {
-    var dx = p.x - angler.x, dy = p.y - angler.y;
-    var L = Math.hypot(dx, dy) || 1;
-    var max = maxCast();
-    if (L > max) { dx *= max / L; dy *= max / L; }
-    var x = clamp(angler.x + dx, 18, W - 18);
-    var y = clamp(angler.y + dy, water.y + 18, water.y + water.h - 12);
-    dx = x - angler.x; dy = y - angler.y;
-    L = Math.hypot(dx, dy) || 1;
-    if (L > max) { x = angler.x + dx / L * max; y = angler.y + dy / L * max; }
-    return { x: x, y: y };
+    var pad = waterPad();
+    return {
+      x: clamp(p.x, water.x + pad, water.x + water.w - pad),
+      y: clamp(p.y, water.y + pad, water.y + water.h - pad)
+    };
   }
-  function defaultTarget() { return clampCast({ x: angler.x, y: angler.y - maxCast() * 0.84 }); }
+  function defaultTarget() {
+    return clampCast({ x: angler.x, y: water.y + water.h * 0.22 });
+  }
   function startCast(target) {
     castFrom = rodTip();
     castTo = { x: target.x, y: target.y };
@@ -717,10 +714,6 @@
       }
       ctx.stroke();
     }
-    ctx.setLineDash([7, 8]); ctx.lineWidth = 3;
-    ctx.strokeStyle = state.gear.pole ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.45)";
-    ctx.beginPath(); ctx.arc(angler.x, angler.y, maxCast(), 0, Math.PI * 2); ctx.stroke();
-    ctx.setLineDash([]);
     loc.snags.forEach(drawSnag);
     if (berleyT > 0 && berley) {
       var bp = toPx(berley.x, berley.y);
@@ -1045,8 +1038,17 @@
     check(state.gear.bait === true && state.money === 0, "bought bait");
     buy("bait");
     check(state.money === 0 && state.gear.bait === true, "no double buy");
-    state.gear.pole = false; var shortCast = maxCast(); state.gear.pole = true;
-    check(maxCast() > shortCast, "pole longer"); state.gear.pole = false;
+    state.gear.pole = false;
+    var far = clampCast({ x: water.x + water.w - 2, y: water.y + 2 });
+    var nearEdge = Math.hypot(far.x - angler.x, far.y - angler.y);
+    check(nearEdge > water.h * 0.55, "cast reaches far water without pole");
+    check(far.y >= water.y && far.y <= water.y + water.h && far.x >= water.x && far.x <= water.x + water.w, "cast stays in water");
+    var bank = clampCast({ x: W / 2, y: H - 2 });
+    check(bank.y <= water.y + water.h - 8, "cast not on bank");
+    state.gear.pole = true;
+    var farPole = clampCast({ x: water.x + 2, y: water.y + 2 });
+    check(Math.hypot(farPole.x - angler.x, farPole.y - angler.y) > water.h * 0.55, "cast reaches far water with pole");
+    state.gear.pole = false;
     state.gear.line = false; var slow = windSpeed(); state.gear.line = true;
     check(windSpeed() > slow, "line faster"); state.gear.line = false;
     state.gear.bait = false; var smallBite = biteRadius(); state.gear.bait = true;
