@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#8fd4ff">
+<meta name="description" content="Born for fish'n is a small fishing game for kids. Catch every fish in a spot, sell them, and buy gear.">
+<title>Born for fish'n</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%238fd4ff'/%3E%3Cellipse cx='34' cy='34' rx='18' ry='12' fill='%23ff9f1c' stroke='%23143044' stroke-width='3'/%3E%3Cpath d='M16 34 L6 24 L6 44 Z' fill='%23ffd166' stroke='%23143044' stroke-width='3'/%3E%3Ccircle cx='42' cy='30' r='3' fill='%23143044'/%3E%3C/svg%3E">
+<script>
+try {
+  var q = location.search;
+  var raw = localStorage.getItem("born-for-fishn-v1");
+  var seen = raw && JSON.parse(raw).helpSeen;
+  if (seen || q.indexOf("play=1") >= 0 || q.indexOf("selftest=1") >= 0) {
+    document.documentElement.classList.add("knows");
+  }
+} catch (e) {}
+</script>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #b9e6ff;
+    color: #143044;
+    font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+  }
+  header { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 10px 4px; }
+  h1 { flex: 1 0 100%; margin: 0; font-size: 1.7rem; letter-spacing: -0.03em; line-height: 1.1; }
+  h2 { margin: 8px 0; font-size: 1.5rem; }
+  .pill, .locbtn, .act, .sheet button {
+    font: inherit; font-weight: 800; border: 3px solid #143044; border-radius: 16px; background: #fff; color: #143044;
+  }
+  .pill { min-height: 48px; padding: 8px 12px; font-size: 1rem; }
+  button.pill { cursor: pointer; }
+  #locs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 4px 10px; }
+  .locbtn { min-height: 56px; padding: 6px 8px; font-size: 0.95rem; line-height: 1.15; white-space: normal; background: #e8f7ff; cursor: pointer; }
+  .locbtn small { font-weight: 800; }
+  .locbtn.on { background: #ffd166; }
+  .locbtn.locked { background: #d7e0e6; color: #355066; }
+  #status { margin: 0; padding: 0 12px 4px; font-weight: 800; font-size: 0.98rem; }
+  #stage { position: relative; flex: 1 1 auto; min-height: 0; margin: 0 8px; border: 3px solid #143044; border-radius: 18px; overflow: hidden; background: #7ec8e3; }
+  canvas { width: 100%; height: 100%; display: block; touch-action: none; }
+  #toast {
+    position: absolute; left: 8px; right: 8px; top: 8px; background: #fffdf6; border: 3px solid #143044;
+    border-radius: 14px; padding: 10px 12px; font-weight: 800; font-size: 1.05rem; text-align: center;
+    opacity: 0; pointer-events: none; transform: translateY(-6px); transition: opacity 0.2s, transform 0.2s; z-index: 3;
+  }
+  #toast.show { opacity: 1; transform: none; }
+  .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 8px; }
+  .act { min-height: 64px; min-width: 72px; font-size: 1.2rem; cursor: pointer; padding: 10px 8px; }
+  .act:active { transform: scale(0.98); }
+  .act:disabled, .mini:disabled { opacity: 0.45; cursor: not-allowed; }
+  .throw { background: #ff9f1c; }
+  .wind { background: #2ec4b6; }
+  .berley { background: #b5e48c; }
+  .net { background: #c7b6ff; }
+  .act.on { outline: 4px solid #143044; }
+  #shop, #basket, #help {
+    position: fixed; inset: 0; z-index: 20; background: rgba(20, 48, 68, 0.35);
+    overflow: auto; -webkit-overflow-scrolling: touch; padding: 12px;
+  }
+  #help { z-index: 30; display: flex; align-items: center; justify-content: center; }
+  html.knows #help { display: none; }
+  .sheet { max-width: 720px; margin: 0 auto 24px; background: #fff8ee; border: 3px solid #143044; border-radius: 20px; padding: 12px; }
+  .pop { margin: 0; }
+  .card { background: #fff; border: 3px solid #143044; border-radius: 16px; padding: 12px; margin: 10px 0; }
+  .card.owned { background: #e7f8ef; }
+  .card p { margin: 6px 0; font-size: 1.05rem; }
+  .mini {
+    min-height: 56px; width: 100%; font: inherit; font-weight: 800; font-size: 1.1rem;
+    border-radius: 14px; border: 3px solid #143044; background: #ffd166; cursor: pointer;
+  }
+  .shop-back, #basket-close, #help-go { width: 100%; margin-bottom: 8px; }
+  ol { margin: 8px 0 12px; padding-left: 1.2rem; font-size: 1.08rem; }
+  ol li { margin: 8px 0; }
+  .price { color: #0b7a3b; font-weight: 800; }
+  .need { color: #9a3412; font-weight: 800; }
+  @media (min-width: 740px) { .controls { grid-template-columns: repeat(4, 1fr); } }
+  @media (orientation: landscape) { h1 { flex: 0 1 auto; font-size: 1.35rem; } header { padding-bottom: 2px; } }
+  @media (max-height: 430px) {
+    h1 { font-size: 1.05rem; flex: 0 1 auto; }
+    header, #locs { padding-top: 2px; padding-bottom: 2px; }
+    .pill, .locbtn { min-height: 42px; font-size: 0.92rem; }
+    #status { font-size: 0.85rem; }
+    .controls { grid-template-columns: repeat(4, 1fr); padding: 6px; }
+    .act { min-height: 52px; font-size: 1rem; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+  body[data-fresh="1"] #throw { animation: pulse 1.15s ease-in-out infinite; }
+  @keyframes pulse { 50% { transform: scale(1.045); } }
+</style>
+</head>
+<body>
+  <header>
+    <h1>Born for fish'n</h1>
+    <div id="money" class="pill">$0</div>
+    <div id="best" class="pill">Best: none yet</div>
+    <button id="basket-btn" class="pill" type="button">Basket 0</button>
+    <button id="shop-btn" class="pill" type="button">Shop</button>
+    <button id="sound-btn" class="pill" type="button">Sound on</button>
+  </header>
+  <nav id="locs" aria-label="Fishing spots"></nav>
+  <p id="status"></p>
+  <div id="stage">
+    <canvas id="pond" width="400" height="500" aria-label="The pond. Fish are swimming. Throw a line and wind it back."></canvas>
+    <div id="toast" role="status"></div>
+  </div>
+  <div class="controls">
+    <button id="throw" class="act throw" type="button">Throw</button>
+    <button id="wind" class="act wind" type="button">Wind</button>
+    <button id="berley-btn" class="act berley" type="button">Berley</button>
+    <button id="net-btn" class="act net" type="button">Net</button>
+  </div>
+  <div id="shop" hidden>
+    <div class="sheet">
+      <button id="shop-back" class="act shop-back" type="button">Back to the pond</button>
+      <h2>Shop</h2>
+      <p id="shop-blurb"></p>
+      <div id="shop-body"></div>
+    </div>
+  </div>
+  <div id="basket" hidden>
+    <div class="sheet">
+      <h2>Basket</h2>
+      <p>Your creel. Fish wait here until you sell them.</p>
+      <div id="basket-list"></div>
+      <button id="basket-shop" class="act throw" type="button">Sell at the shop</button>
+      <button id="basket-close" class="act" type="button">Back</button>
+    </div>
+  </div>
+  <div id="help">
+    <div class="sheet pop">
+      <h2>Born for fish'n</h2>
+      <ol>
+        <li>Press <b>Throw</b>, or drag on the water, to cast.</li>
+        <li>Hold <b>Wind</b>, or drag back towards you, to bring the hook in.</li>
+        <li>You catch a fish only when the hook passes close on the way in. Tapping a fish does not catch it.</li>
+        <li>Keep fish in your basket, then sell them at the <b>Shop</b>.</li>
+        <li>Catch every fish in this spot to open the next one.</li>
+      </ol>
+      <button id="help-go" class="act throw" type="button">Let's fish</button>
+    </div>
+  </div>
+  <div id="selftest" hidden></div>
+  <script src="game.js"></script>
+</body>
+</html>
